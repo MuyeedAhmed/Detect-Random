@@ -153,6 +153,8 @@ class ModifyLibraryFile:
         if RandomVars.shape[0] == 0:
             self.NewFile.write(self.code)
             return
+        
+        self.init_decorator()
         '''Read Source File'''
         OrginalFile = open(self.OriginalCodeTemporaryPath, 'r')
         OrginalFileLines = OrginalFile.readlines()
