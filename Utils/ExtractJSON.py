@@ -29,9 +29,9 @@ def main():
         except json.JSONDecodeError:
             print(f"Skipping {file_path}: Invalid JSON format.")
 
-    if all_data:
-        df = pd.DataFrame(all_data)
-        df.to_excel(outfile_name, index=False)
+        if all_data:
+            df = pd.DataFrame(all_data)
+            df.to_excel(outfile_name, index=False)
     
 
 if __name__ == "__main__":
