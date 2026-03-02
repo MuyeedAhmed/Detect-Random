@@ -6,13 +6,19 @@ import sys
 from pathlib import Path
 
 
-def GeneratePysaConfig(source_dirs, output_path="Files/.pyre_configuration"):
+def GeneratePysaConfig(source_dirs, checkType, output_path="Files/.pyre_configuration"):
     if isinstance(source_dirs, str):
         source_dirs = [source_dirs]
+    
+    if checkType == "random":
+        pysamodels_dir = "pysa_models_random"
+    else:
+        pysamodels_dir = "pysa_models_system"
+
     config = {
         "site_package_search_strategy": "pep561",
         "source_directories": source_dirs,
-        "taint_models_path": ["pysa_models"]
+        "taint_models_path": [pysamodels_dir]
     }
     with open(output_path, "w") as f:
         json.dump(config, f, indent=2)
@@ -34,8 +40,9 @@ def CopyPysaDirectoryContents(src_dir, dst_dir):
 if __name__ == "__main__":
     lib_source_path = sys.argv[1]
     lib_check_path = sys.argv[2]
+    checkType = sys.argv[3] if len(sys.argv) > 3 else "random"
 
-    GeneratePysaConfig(lib_check_path)
+    GeneratePysaConfig(lib_check_path, checkType)
 
     CopyPysaDirectoryContents("Files", lib_source_path)
     
