@@ -2,14 +2,14 @@ import pandas as pd
 import json
 import glob
 import os
-
+import sys
 
 def main():
-    file_list = glob.glob('../Results/*.txt')
+    file_list = glob.glob('../Results/*.json')
     all_data = []
 
     for file_path in file_list:
-        outfile_name = os.path.basename(file_path)[:-4]+".xlsx"
+        outfile_name = os.path.basename(file_path)[:-5]+".xlsx"
         outfile_name = os.path.join('../Results', outfile_name)
         if os.path.exists(outfile_name):
             print(f"File {outfile_name} already exists. Skipping {file_path}.")
@@ -33,6 +33,31 @@ def main():
             df = pd.DataFrame(all_data)
             df.to_excel(outfile_name, index=False)
     
+def ExtractJSON(path, project_name=None):
+    with open(path, 'r') as f:
+        data = json.load(f)
+        all_data = []
+        for entry in data:
+            all_data.append({
+                'Path': entry.get('path'),
+                'File': os.path.basename(entry.get('path')),
+                'Function': entry.get('define'),
+                'Line': entry.get('line'),
+                'Stop Line': entry.get('stop_line'),
+                'Leak Name': entry.get('name')
+            })
+        df = pd.DataFrame(all_data)
+       
+        outfile_name = os.path.join('../Results', project_name+".xlsx")
+        df.to_excel(outfile_name, index=False)
+
 
 if __name__ == "__main__":
-    main()
+    proj_path = sys.argv[1]
+    if proj_path:
+        project_name = os.path.basename(os.path.normpath(proj_path))
+        print(project_name)
+        path_error = os.path.join(proj_path, "pyre-output/errors.json")
+        ExtractJSON(path_error, project_name)
+    else:
+        main()
