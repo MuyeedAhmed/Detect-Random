@@ -38,7 +38,8 @@ def dropDuplicates(file_path):
         .drop_duplicates()
         .reset_index(drop=True)
     )
-    new_file_path = os.path.join(os.path.dirname(file_path), os.path.basename(file_path)[:-5] + "_deduplicated.xlsx")
+    os.makedirs(os.path.join(os.path.dirname(file_path), "Filtered/"), exist_ok=True)
+    new_file_path = os.path.join(os.path.dirname(file_path), "Filtered/" + os.path.basename(file_path))
     new_df.to_excel(new_file_path, index=False)
 
 for file in os.listdir("../Results"):

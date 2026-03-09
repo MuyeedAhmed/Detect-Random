@@ -11,11 +11,6 @@ class ModifyLibraryFile:
         self.OutputFilePath = self.FilePath[:-3]+"_Output.py"
         
         self.VariableDF = pd.DataFrame()
-        
-        # if not os.path.exists("VariableValues/"):
-        #     os.makedirs("VariableValues")
-        # if not os.path.exists("TraceOutput/"):
-        #     os.makedirs("TraceOutput")
     
     
     def init_decorator(self):
@@ -149,13 +144,11 @@ class ModifyLibraryFile:
             self.VariableDF["RHS_String"].str.contains("random", case=False, na=False),
             ["LineNumber", "VariableName", "StartLineNumber", "RHS_String"]
         ]
-        # print("RandomVars: ", RandomVars)
         if RandomVars.shape[0] == 0:
             self.NewFile.write(self.code)
             return
         
         self.init_decorator()
-        '''Read Source File'''
         OrginalFile = open(self.OriginalCodeTemporaryPath, 'r')
         OrginalFileLines = OrginalFile.readlines()
         OFLines = iter(OrginalFileLines)
@@ -168,12 +161,7 @@ class ModifyLibraryFile:
                 num_spaces = len(line) - len(line.lstrip(' '))
                 spaces = ' ' * num_spaces
             filtered_df = RandomVars[RandomVars["LineNumber"] == lineCount]
-            # print("LineCount: ", lineCount, filtered_df.shape[0])
             if filtered_df.shape[0] > 0:
-                # print(filtered_df)
-                # num_spaces = len(line) - len(line.lstrip(' '))
-                # # print("Line: ", line, len(line), "-LS-", len(line.lstrip(' ')), "Spaces - ", num_spaces)
-                # spaces = ' ' * num_spaces
                 for index, row in filtered_df.iterrows():
                     self.add_taint(spaces, "Global", row["VariableName"], row["LineNumber"])
                 spaces = ''
@@ -181,17 +169,14 @@ class ModifyLibraryFile:
                 
     
     def fit(self):
-        ''' Save Original Source Code '''
         if os.path.exists(self.OriginalCodeTemporaryPath) == 0:
             shutil.copy(self.FilePath, self.OriginalCodeTemporaryPath)
-            
-        '''Read File And Create Tree'''
+        
         with open(self.FilePath, 'r') as file:
             self.code = file.read()
         try:
             self.tree = ast.parse(self.code)
         except SyntaxError as e:
-            # os.remove(self.OriginalCodeTemporaryPath)
             print(f"Syntax error in file {self.FilePath}: {e}")
             return
         
@@ -202,15 +187,7 @@ class ModifyLibraryFile:
         os.remove(self.FilePath)
         os.rename(self.OutputFilePath, self.FilePath)
         os.remove(self.OriginalCodeTemporaryPath)
-        # # Store LOC
-        # loc = sum(1 for line in self.code.splitlines() if line.strip())
-        # with open("/Users/muyeedahmed/Desktop/Gitcode/Trace_ND_Source/TraceND/LOC/loc.csv", mode='a', newline='') as csv_file:
-        #     writer = csv.writer(csv_file)
-            
-        #     if csv_file.tell() == 0:
-        #         writer.writerow(['FilePath', 'LOC'])
-            
-        #     writer.writerow([self.FilePath, loc])
+        
         
 
         
